@@ -1,5 +1,33 @@
 # Anonymous State Machines
 
+## Introduction
+
+### The Problem: Privacy-Preserving Stateful Systems
+
+In modern digital systems, users routinely interact with services that need to maintain state about them - from subscription services tracking usage limits to authentication systems recording login attempts. However, this state management traditionally requires users to trust service providers with their personal data, creating significant privacy concerns.
+
+### Existing Solutions and Their Limitations
+
+#### Anonymous Credentials
+
+Anonymous credential systems (like U-Prove, Idemix, and zkSNARK-based approaches) allow users to prove properties about themselves without revealing their identity. However, these systems have a critical limitation: **they are fundamentally stateless**. Once issued, a credential cannot be updated - it can only be replaced with a newly issued credential. This requires reconnecting with the issuer for any state change, defeating true client-side state management.
+
+#### Rate Limiting Solutions
+
+Systems like Privacy Pass and rate-limiting tokens enable anonymous access while preventing abuse. However, these are often single-use tokens that can only be consumed once, not updated. This forces a choice between maintaining state centrally (sacrificing privacy) or issuing new credentials for each state change (sacrificing efficiency).
+
+#### The Trust Gap
+
+Due to these limitations, many systems resort to trusted server-based approaches, storing user state on servers and asking users to trust that their privacy won't be violated. This creates an unnecessary gap between theoretical privacy protection and practical implementations.
+
+### Anonymous State Machines: Bridging the Gap
+
+Anonymous State Machines (ASMs) address these limitations by enabling:
+1. Client-held state that remains under user control
+2. Server-validated state transitions without revealing all state data
+3. Cryptographic verification of state validity without centralized storage
+4. Prevention of replay attacks via nullifier tracking
+
 Intuitively, an Anonymous State Machine is a way for a server to store state on
 the client, all the while updating and querying that state and keeping it
 authenticated by ensuring updates proceed according to a set of server-defined
@@ -130,6 +158,10 @@ certain that:
 
 ## Summary
 
+### Bridging the Gap Between Privacy and Stateful Systems
+
+Anonymous State Machines provide a cryptographic solution to a fundamental tension in privacy-preserving systems: how to maintain updateable state without sacrificing privacy. Unlike traditional anonymous credential systems that can only be replaced but not updated, ASMs enable genuine stateful operations while preserving anonymity.
+
 An Anonymous State Machine protocol allows an issuer to:
 1. Issue authenticated initial states to clients after verifying they satisfy the predicate ψ
 2. Process state transitions according to well-defined rules (Γ and ρ)
@@ -137,15 +169,27 @@ An Anonymous State Machine protocol allows an issuer to:
 4. Maintain client privacy by keeping state data with the client
 
 This model enables privacy-preserving state management where:
-- The client maintains their own state data
+- The client maintains their own state data, reducing the need to trust servers with private information
 - Initial states are verified using the ψ predicate without revealing private data
 - The issuer authenticates and validates state transitions using the ρ predicate
-- Each state can only be transitioned once (via nullifier tracking)
+- Each state can only be transitioned once (via nullifier tracking), preventing replay attacks
 - The issuer enforces state transition rules without necessarily learning all state values
+
+### Practical Applications
+
+Anonymous State Machines can transform applications that currently require trusted servers for state management. By moving state to the client side while ensuring cryptographic integrity, ASMs enable:
+
+- Rate-limited systems that preserve privacy
+- Multi-use anonymous access tokens that can be decremented without revealing identity
+- Loyalty systems that track points without tracking users
+- Access control systems where permissions can be selectively disclosed
+- Voting systems with provable eligibility but anonymous participation
 
 This approach provides a powerful framework for privacy-preserving protocols where state needs to be maintained and validated while minimizing data exposure to the issuer.
 
 ## Examples
+
+The following examples demonstrate how Anonymous State Machines can be applied to real-world problems.
 
 ### Anonymous Credit Tokens
 
@@ -154,6 +198,11 @@ are an example of an Anonymous State Machine. The state is a single element
 vector which contains the number of credits. The function Γ(v, τ) = v - τ, and
 the predicate ρ(v, τ) = v - τ ≤ 2<sup>l</sup>, where l is the maximum number of bits
 allowed in token denominations.
+
+**Advantages:**
+- Users can spend credits over time without revealing their identity across uses
+- Server can enforce credit limits without maintaining user-linked accounts
+- Credit balance is maintained client-side but cryptographically verified
 
 ### Anonymous Access Control
 
@@ -168,6 +217,12 @@ privileges can grant new permissions).  This allows a client to prove they have
 specific permissions without revealing their identity or the full set of
 permissions they hold.
 
+**Advantages:**
+- Users can selectively disclose only the permissions relevant to a specific resource
+- Permissions can be updated without requiring full credential reissuance
+- Organizations can delegate permissions without maintaining central user-permission databases
+- Permission changes are cryptographically validated while preserving user privacy
+
 ### Anonymous Voting System
 
 An Anonymous State Machine can power a private voting system where voters can
@@ -181,6 +236,12 @@ transition includes the election index, so the predicate ρ(v, τ) verifies that
 is valid for the current election index (preventing votes in past or future elections), while
 the transition function Γ(v, τ) = v + 1 moves to the next election. This ensures that each
 eligible voter can only vote once per election while keeping their identity anonymous.
+
+**Advantages:**
+- Voters remain anonymous while provably demonstrating voting eligibility
+- Double-voting is cryptographically prevented without voter registration databases
+- Voter status can be updated across multiple elections without reissuance
+- Election administrators can ensure one-vote-per-person without tracking identities
 
 ### Anonymous Loyalty Program
 
@@ -206,3 +267,10 @@ disclose only their loyalty tier to service providers (e.g., to access tier-spec
 without revealing their point balance or consuming their token. This transition uses a nullifier 
 that can be regenerated deterministically for specific service providers, allowing repeated 
 verification while maintaining unlinkability between different providers.
+
+**Advantages:**
+- Customers can accumulate and spend points without revealing their identity
+- Businesses can prevent fraud and double-spending without tracking individual customers
+- Tier benefits can be selectively disclosed without revealing point balances
+- Customer purchase patterns remain private even as they earn and redeem rewards
+- Different service providers cannot collude to track customer activities across venues
