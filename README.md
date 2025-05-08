@@ -251,10 +251,11 @@ customer purchase history while allowing point redemption. The state vector cons
 represents the customer's loyalty level (e.g., bronze, silver, gold).
 
 The transition function Γ(v, τ) handles three types of transitions:
-1. Point earning: Γ([points, tier], τ_earn) = [points + amount, new_tier] where new_tier is 
+1. Point earning: Γ([points, tier], τ\_earn(points)) = [points + amount, new\_tier] where new\_tier is 
    calculated based on the updated point balance
-2. Point redemption: Γ([points, tier], τ_redeem) = [points - cost, tier]
-3. Tier verification: Γ([points, tier], τ_verify) = [points, tier] (state remains unchanged)
+1. Tier update: Γ([points, tier], τ\_tier(new\_tier)) = [points, new\_tier]
+2. Point redemption: Γ([points, tier], τ\_redeem(points)) = [points - cost, tier]
+3. Tier verification: Γ([points, tier], τ\_verify(tier)) = \[points, tier\] (state remains unchanged)
 
 The predicate ρ(v, τ) ensures valid transitions by verifying:
 - For redemptions: points ≥ cost and the redemption amount doesn't exceed maximum allowed for tier
