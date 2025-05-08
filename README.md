@@ -64,7 +64,6 @@ The issuance protocol:
 3. Issuer and client engage in a secure protocol where:
    - The issuer contributes the public state values { v\_i } i ∈ P
    - The client contributes the private state values { v\_i } i ∈ [n] \ P
-   - No party learns the other's private inputs
 4. Client provides a zero-knowledge proof ψ(v) that their initial state vector satisfies certain properties
    - This allows the issuer to verify the state is well-formed without learning private values
    - The predicate ψ defines valid initial states (e.g., range proofs for numeric values)
