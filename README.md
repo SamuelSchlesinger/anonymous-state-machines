@@ -1,5 +1,10 @@
 # Anonymous State Machines
 
+Intuitively, an Anonymous State Machine is a way for a server to store state on
+the client, all the while updating and querying that state and keeping it
+authenticated by ensuring updates proceed according to a set of server-defined
+rules.
+
 An Anonymous State Machine consists of the following types and protocols:
 
 ## State
