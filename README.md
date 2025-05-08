@@ -62,7 +62,7 @@ every query, while maintaining as much privacy as is possible.
 
 ## Examples
 
-The Anonymous Credit Tokens implemented by Jonathan Katz and Samuel Schlesinger
+The [Anonymous Credit Tokens](https://github.com/SamuelSchlesinger/anonymous-credit-tokens)
 are an example of an Anonymous State Machine. The state is a single element
 vector which contains the number of credits. The function Γ(v, τ) = v - τ, and
 the predicate ρ(v, τ) = v - τ ≤ 2<sup>l</sup>, where l is the maximum number of bits
