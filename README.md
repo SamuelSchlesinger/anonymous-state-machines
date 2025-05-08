@@ -84,7 +84,7 @@ certain that:
 ```
   Client                                      Issuer
     |                                           |
-    |  === ISSUANCE PROTOCOL ===               |
+    |   === ISSUANCE PROTOCOL ===               |
     |                                           |
     |------- Request Initial State ------------>|
     |                                           |
@@ -102,7 +102,7 @@ certain that:
     |<------ Issue Authentication Code σ -------|
     |        (for state v, nullifier k, r)      |
     |                                           |
-    |  === TRANSITION PROTOCOL ===             |
+    |   === TRANSITION PROTOCOL ===             |
     |                                           |
     |-- Generate:                               |
     |   - new secret blinding factor r'         |
@@ -111,7 +111,7 @@ certain that:
     |-- Create proof of valid state with        |
     |   authentication code σ                   |
     |                                           |
-    |------- Transition Request -------------->|
+    |-------- Transition Request -------------->|
     |        with:                              |
     |        - nullifier k (revealed)           |-- Check if nullifier k 
     |        - transition τ                     |   exists in database
@@ -122,9 +122,9 @@ certain that:
     |          * new blinding factor r'         |-- Verify ρ(v,τ) is satisfied
     |          * new state Γ(v,τ)               |-- Compute new state Γ(v,τ)
     |                                           |
-    |<------ New Authentication Code σ' ---------|
+    |<----- New Authentication Code σ' ---------|
     |        (for new state Γ(v,τ),             |
-    |         new nullifier k', new blinding r') |
+    |         new nullifier k', new blinding r')|
     |                                           |
 ```
 
@@ -147,8 +147,62 @@ This approach provides a powerful framework for privacy-preserving protocols whe
 
 ## Examples
 
+### Anonymous Credit Tokens
+
 The [Anonymous Credit Tokens](https://github.com/SamuelSchlesinger/anonymous-credit-tokens)
 are an example of an Anonymous State Machine. The state is a single element
 vector which contains the number of credits. The function Γ(v, τ) = v - τ, and
 the predicate ρ(v, τ) = v - τ ≤ 2<sup>l</sup>, where l is the maximum number of bits
 allowed in token denominations.
+
+### Anonymous Access Control
+
+An Anonymous State Machine can implement privacy-preserving access control
+systems.  In this example, the state vector v contains a set of permission
+flags v = [v\_1, v\_2, ..., v\_n] where each v\_i represents a different permission
+(e.g., read, write, admin).  The transition function Γ(v, τ) updates
+permissions based on authorized actions, where τ might represent "grant write
+access" or "revoke admin privileges".  The predicate ρ(v, τ) ensures that only
+authorized parties can modify permissions (e.g., only users with admin
+privileges can grant new permissions).  This allows a client to prove they have
+specific permissions without revealing their identity or the full set of
+permissions they hold.
+
+### Anonymous Voting System
+
+An Anonymous State Machine can power a private voting system where voters can
+prove their eligibility without revealing their identity. The state is a single 
+element vector containing the index of the current election. Transitions increment
+this index by 1, representing a vote in the current election.
+
+In this system, when a voter casts a ballot, their vote is bound to the transition validity
+proof in the Fiat-Shamir transform by including it as an input to a hash function. The 
+transition includes the election index, so the predicate ρ(v, τ) verifies that the transition
+is valid for the current election index (preventing votes in past or future elections), while
+the transition function Γ(v, τ) = v + 1 moves to the next election. This ensures that each
+eligible voter can only vote once per election while keeping their identity anonymous.
+
+### Anonymous Loyalty Program
+
+An Anonymous State Machine can implement a privacy-preserving loyalty program that protects
+customer purchase history while allowing point redemption. The state vector consists of
+[total\_points, tier\_status], where total\_points tracks accumulated rewards and tier\_status 
+represents the customer's loyalty level (e.g., bronze, silver, gold).
+
+The transition function Γ(v, τ) handles three types of transitions:
+1. Point earning: Γ([points, tier], τ_earn) = [points + amount, new_tier] where new_tier is 
+   calculated based on the updated point balance
+2. Point redemption: Γ([points, tier], τ_redeem) = [points - cost, tier]
+3. Tier verification: Γ([points, tier], τ_verify) = [points, tier] (state remains unchanged)
+
+The predicate ρ(v, τ) ensures valid transitions by verifying:
+- For redemptions: points ≥ cost and the redemption amount doesn't exceed maximum allowed for tier
+- For earnings: amount is within valid range and properly corresponds to purchase value
+- For tier verification: always true, but allows proving tier membership to a verifier without 
+  modifying state
+
+The tier verification transition is particularly useful as it allows customers to selectively 
+disclose only their loyalty tier to service providers (e.g., to access tier-specific benefits) 
+without revealing their point balance or consuming their token. This transition uses a nullifier 
+that can be regenerated deterministically for specific service providers, allowing repeated 
+verification while maintaining unlinkability between different providers.
