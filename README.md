@@ -1,5 +1,7 @@
 # Anonymous State Machines
 
+## [Discussion](https://github.com/SamuelSchlesinger/anonymous-state-machines/issues)
+
 ## Introduction
 
 ### The Problem: Privacy-Preserving Stateful Systems
